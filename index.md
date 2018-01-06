@@ -1,39 +1,77 @@
-## Welcome to GitHub Pages
-[link](https://www.imhunk.com)
-![Image](https://www.imhunk.com/wp-content/uploads/2017/12/buy-domain.png)
+上周6早上，刚开手机，就收到客户的信息，说他的网站中毒了，media打开不能显示，而且无法上传图片，并且只要打开网站，电脑的杀毒软件就会报错。花了半小时，修复了这个问题。今天把网站修复的过程分享下来，告诉大家如果网站被黑了要怎么办。
 
-You can use the [editor on GitHub](https://github.com/hunksong/hunksong.github.io/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
+1. 找到网站被黑点在哪里
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+收到客户的信息后，我马上打开电脑查看，除了网站的media无法显示任何图片，也无法上传之外，还发现网站突然非常占电脑CPU，只要一打开页面，CPU就满血到98%，导致电脑非常卡，除此之外，网站其他功能暂时还能正常使用。
 
-### Markdown
+因此我推测不算特别严重（如果严重的被黑是整个空间充满了病毒（恶意程序），网站也打不开），要么是网站被挂了黑链，要么是网站被挂了恶意代码。于是先用工具网站http://www.unmaskparasites.com/查询一下是否被挂了恶意程序
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+网站被黑了怎么办 1  果然，查询结果出现了几行可疑的代码，而且链接到了coinhive.com 的资源。问题点就在这里。因为我做的网站我很清楚，不可能有这样的代码。
 
-```markdown
-Syntax highlighted code block
+然后在自己的网站上面右键 - 查看，然后用ctrl+f搜索coinhive，果然找到了这5行恶意代码。
 
-# Header 1
-## Header 2
-### Header 3
+网站被黑了怎么办 2
 
-- Bulleted
-- List
+百度和google了一下，发现这个是一个利用电脑或网站挖矿的程序，NND，竟然黑到我的网站上面了！所以问题点找到了，就是这5行恶意代码！
 
-1. Numbered
-2. List
+2. 清除网站上的代码
 
-**Bold** and _Italic_ and `Code` text
+恶意代码找到了，现在要清除掉这几行代码，要先找到代码所在的具体位置。
 
-[Link](url) and ![Image](src)
-```
+我们知道，WP页面是由WP+主题组成的，那么这几行恶意代码是植入了WP系统文件还是主题页面中呢？做一个简单的测试测试就能知道。
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+网站被黑了怎么办 0
 
-### Jekyll Themes
+网站被黑了怎么办 2
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/hunksong/hunksong.github.io/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+然后随便激活后台的其他主题，如2017主题，然后回到前台，右键- 检查，再CTRL+F，搜索coinhive，发现这些恶意代码还存在，这说明这几行代码的位置是在WP系统文件中，因为换了主题之后恶意代码依然存在。
 
-### Support or Contact
+那么现在把网站的全部WP系统文件下载，直接用duplicator备份所有资料，但是点到第3步，发现duplicator竟然无法进行了，WTF，竟然阻止我备份。
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+网站被黑了怎么办 3
+
+好吧，只有用linux指令来备份了。
+
+打开XSHELL，连接上网站所在的空间，进入系统根目录上一层目录，然后输入以下指令并回车
+
+tar cvf in.tar public_html
+
+就可以把整个WP系统文件压缩为in.tar的文件， 然后把in.tar拖到public_html中，再输入www.xx.com/in.tar回车，就可以下载了
+
+下载到本地后，解压，看到很多系统文件，可是怎么知道这些代码是放在哪个文件里面呢？网站被黑了怎么办 9
+
+不怕，这里用到一个好工具 string finder，免费资源有下载，只需要选择了文件夹路径和搜索的关键词，就能找到包含这个关键词的所有文件。
+
+经过1分钟左右的查找，终于找到了15个被黑掉了系统文件，它们全部在系统根目录 下面，都是php的文件。
+
+网站被黑了怎么办 5
+
+找到这些文件然后一个个的点开查看，发现了一段代码，几个文件中的恶意代码都是一模一样，echo .....。选中这些恶意代码，然后删除并保存。
+
+网站被黑了怎么办 4
+
+网站被黑了怎么办 6
+
+3. 上传修复的系统文件替换掉被黑的文件
+
+既然只有这10几个文件被黑，那只需要把这10几个替换掉即可，直接连接FTP，找到这些文件所在的网站根目录，然后全选上传，选择覆盖即可。
+
+然后再刷新下网站，并右键 - 检查可以看到这些coinhive的代码没有。
+
+网站被黑了怎么办 7
+
+然后再检查下后台的功能， media里面的图片也能预览了，图片也能上传了，duplicator也能备份了。网站恢复正常！
+
+4. 这个网站被黑的原因
+
+网站恢复正常以后，经过仔细排查，发现黑客是通过暴力破解FTP的密码进入空间，然后修改网站的系统文件的，尽管我的密码设置的非常复杂，但是这一次确实是unlucky，竟然被破解了。不过这种事情有时候也是没解，别人想黑你，你一点办法没有，只能预防。
+
+5. 网站被黑的一些总结和教训
+
+虽然是小概率事件（这是第二次，第一次被黑是在2013年，当时被挂了黑链），但是还是值得总结下。
+
+最重要的密码一定要复杂，越复杂越好。开放的空间连接方式也是越少越好。
+
+另外，还要多备份网站，只要网站有更新就及时的备份。
+
+更多防止网站被黑的方法参考WordPress如何防止被黑
